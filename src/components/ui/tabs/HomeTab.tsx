@@ -35,6 +35,11 @@ export function HomeTab() {
   const { connect, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
 
+  // Get the Farcaster Mini App connector
+  const miniAppConnector = connectors.find(
+    (connector) => connector.id === "farcasterMiniApp"
+  );
+
   // USDC token address on Base Sepolia
   const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7c";
   const ENTRY_FEE = parseUnits("5", 6); // 5 USDC with 6 decimals
@@ -204,7 +209,12 @@ export function HomeTab() {
                   }
 
                   if (!isConnected) {
-                    connect({ connector: connectors[0] });
+                    if (miniAppConnector) {
+                      connect({ connector: miniAppConnector });
+                    } else {
+                      console.error("Farcaster Mini App connector not found");
+                      alert("Wallet connection not available");
+                    }
                     return;
                   }
 

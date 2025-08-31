@@ -45,6 +45,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Database update successful:", {
+      data,
+      timestamp,
+      user_address,
+      fid,
+      readable_time,
+    });
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("API error:", error);
