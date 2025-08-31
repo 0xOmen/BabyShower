@@ -17,6 +17,9 @@ import { useEffect, useState } from "react";
 export function HomeTab() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+  const [birthTime, setBirthTime] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -86,8 +89,11 @@ export function HomeTab() {
           prize pool!
         </p>
         <div className="flex gap-3">
-          <button className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-            Submit Guess: $5
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Guess and Give: $5
           </button>
           <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
             My Entries
@@ -103,6 +109,87 @@ export function HomeTab() {
           </p>
         </div>
       </div>
+
+      {/* Birth Time Guess Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mx-4 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Guess baby&apos;s birth time:
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Time
+                </label>
+                <input
+                  type="time"
+                  value={birthTime}
+                  onChange={(e) => setBirthTime(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Handle guess submission here
+                  if (birthDate && birthTime) {
+                    // Create a date string in Chile Standard Time
+                    const dateTimeString = `${birthDate}T${birthTime}`;
+
+                    // Create a Date object (JavaScript assumes local timezone)
+                    // Since we're getting input in Chile time, we need to convert
+                    const chileDate = new Date(dateTimeString);
+
+                    // Chile Standard Time is UTC-3
+                    // We need to add 3 hours to convert to UTC
+                    const utcTimestamp =
+                      chileDate.getTime() + 3 * 60 * 60 * 1000;
+
+                    // Convert to Unix timestamp (seconds, not milliseconds)
+                    const unixTimestamp = Math.floor(utcTimestamp / 1000);
+
+                    console.log("Guess submitted:", {
+                      birthDate,
+                      birthTime,
+                      chileDateTime: dateTimeString,
+                      unixTimestamp,
+                      utcTime: new Date(utcTimestamp).toISOString(),
+                    });
+                  } else {
+                    console.log("Please select both date and time");
+                  }
+                  setIsModalOpen(false);
+                }}
+                className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Guess and Give $5
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
