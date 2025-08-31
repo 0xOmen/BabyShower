@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getNeynarUser } from "../../../lib/neynar";
 
 /**
  * HomeTab component displays the main landing content for the mini app.
@@ -22,8 +21,13 @@ export function HomeTab() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData = await getNeynarUser(16098); // @jpfraneto.eth
-        setUser(userData);
+        // Mock user data for now to avoid server-side import issues
+        const mockUser = {
+          username: "jpfraneto",
+          pfp_url:
+            "https://i.seadn.io/gae/2hDpuTi-0AMKvoZJGd-yKWvK4tKdQr_kLIpB_qSeMau2_TNGCNidAos9vrXduv40w5n_4CqQh8P9emz6Cxj5Zudl1e5e2SpxJhOeuTw?w=500&auto=format",
+        };
+        setUser(mockUser);
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
