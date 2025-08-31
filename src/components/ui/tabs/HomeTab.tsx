@@ -31,7 +31,7 @@ export function HomeTab() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Wallet connection
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, chainId } = useAccount();
   const { connect, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
 
@@ -218,6 +218,16 @@ export function HomeTab() {
                     return;
                   }
 
+                  // Check if we're on the correct chain (Base Sepolia)
+                  if (chainId !== 84532) {
+                    console.error(
+                      "Wrong chain. Expected Base Sepolia (84532), got:",
+                      chainId
+                    );
+                    alert("Please switch to Base Sepolia testnet");
+                    return;
+                  }
+
                   setIsSubmitting(true);
 
                   try {
@@ -231,6 +241,18 @@ export function HomeTab() {
                     const unixTimestamp = Math.floor(utcTimestamp / 1000);
 
                     // Prepare batch transaction calls
+                    console.log("Chain and contract info:", {
+                      chainId,
+                      expectedChainId: 84532,
+                      isCorrectChain: chainId === 84532,
+                      USDC_ADDRESS,
+                      RAFFLE_CONTRACT_ADDRESS,
+                      isValidUSDC: /^0x[a-fA-F0-9]{40}$/.test(USDC_ADDRESS),
+                      isValidRaffle: /^0x[a-fA-F0-9]{40}$/.test(
+                        RAFFLE_CONTRACT_ADDRESS
+                      ),
+                    });
+
                     const calls = [
                       // Approve USDC spending
                       {
@@ -251,6 +273,8 @@ export function HomeTab() {
                         }),
                       },
                     ];
+
+                    console.log("Prepared calls:", calls);
 
                     // Send batch transaction
                     const result = await sendCalls({ calls });
