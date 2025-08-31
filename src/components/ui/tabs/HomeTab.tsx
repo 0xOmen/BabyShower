@@ -76,6 +76,25 @@ export function HomeTab() {
         </div>
       </div>
 
+      {/* 50/50 Baby Shower Raffle Section */}
+      <div className="bg-blue-100 dark:bg-blue-900 rounded-lg p-4 mb-4 shadow-sm">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+          50/50 Baby Shower Raffle
+        </h3>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+          Be the closest to guess the time of baby&apos;s birth and WIN half the
+          prize pool!
+        </p>
+        <div className="flex gap-3">
+          <button className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+            Submit Guess: $5
+          </button>
+          <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+            My Entries
+          </button>
+        </div>
+      </div>
+
       {/* Original Content */}
       <div className="flex items-center justify-center flex-1">
         <div className="text-center w-full max-w-md mx-auto">
