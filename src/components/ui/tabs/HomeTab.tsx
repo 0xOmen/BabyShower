@@ -57,7 +57,7 @@ export function HomeTab() {
         </div>
         <div className="flex-1 ml-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Celebrate {user?.username || "jpfraneto"}'s family!
+            Celebrate {user?.username || "jpfraneto"}&apos;s family!
           </h1>
           <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
             Win Money!
