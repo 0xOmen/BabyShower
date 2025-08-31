@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useSendCalls } from "wagmi";
+import { useAccount, useConnect, useSendCalls, useSwitchChain } from "wagmi";
 import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 import { encodeFunctionData, parseUnits } from "viem";
+import { baseSepolia } from "wagmi/chains";
 import { ERC20_ABI } from "../../../lib/ERC20ABI";
 import {
   raffleContractABI,
@@ -34,6 +35,7 @@ export function HomeTab() {
   const { isConnected, address, chainId } = useAccount();
   const { connect, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
+  const { switchChain } = useSwitchChain();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -220,12 +222,20 @@ export function HomeTab() {
 
                   // Check if we're on the correct chain (Base Sepolia)
                   if (chainId !== 84532) {
-                    console.error(
+                    console.log(
                       "Wrong chain. Expected Base Sepolia (84532), got:",
-                      chainId
+                      chainId,
+                      ". Switching automatically..."
                     );
-                    alert("Please switch to Base Sepolia testnet");
-                    return;
+                    try {
+                      await switchChain({ chainId: 84532 });
+                      // Wait a moment for the chain switch to complete
+                      await new Promise((resolve) => setTimeout(resolve, 1000));
+                    } catch (error) {
+                      console.error("Failed to switch chain:", error);
+                      alert("Please switch to Base Sepolia testnet manually");
+                      return;
+                    }
                   }
 
                   setIsSubmitting(true);
