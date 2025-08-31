@@ -18,9 +18,9 @@ export function Header({ neynarUser }: HeaderProps) {
 
   return (
     <div className="relative">
-      <div className="mt-4 mb-4 mx-4 px-2 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-between border-[3px] border-double border-primary">
+      <div className="mt-4 mb-4 mx-4 px-2 py-2 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-between border-[3px] border-double border-primary">
         <div className="flex items-center gap-2">
-          <img src="/icon.png" alt="App Logo" className="w-6 h-6" />
+          <img src="/icon.png" alt="App Logo" className="w-8 h-8" />
           <div className="text-lg font-light" style={{ color: "#f96da7" }}>
             {APP_NAME}
           </div>
