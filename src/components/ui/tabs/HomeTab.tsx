@@ -21,15 +21,22 @@ export function HomeTab() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // Mock user data for now to avoid server-side import issues
-        const mockUser = {
+        const response = await fetch("/api/users?fids=16098");
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const data = await response.json();
+        if (data.users && data.users.length > 0) {
+          setUser(data.users[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        // Fallback to mock data if API fails
+        setUser({
           username: "jpfraneto",
           pfp_url:
             "https://i.seadn.io/gae/2hDpuTi-0AMKvoZJGd-yKWvK4tKdQr_kLIpB_qSeMau2_TNGCNidAos9vrXduv40w5n_4CqQh8P9emz6Cxj5Zudl1e5e2SpxJhOeuTw?w=500&auto=format",
-        };
-        setUser(mockUser);
-      } catch (error) {
-        console.error("Error fetching user:", error);
+        });
       } finally {
         setLoading(false);
       }
