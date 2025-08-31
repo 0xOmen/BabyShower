@@ -146,12 +146,6 @@ export function HomeTab() {
 
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
                 onClick={() => {
                   // Handle guess submission here
                   if (birthDate && birthTime) {
@@ -185,6 +179,12 @@ export function HomeTab() {
                 className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 Guess and Give $5
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Cancel
               </button>
             </div>
           </div>
