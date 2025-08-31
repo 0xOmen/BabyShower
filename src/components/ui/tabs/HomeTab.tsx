@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAccount, useConnect, useSendCalls } from "wagmi";
+import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
+import { encodeFunctionData, parseUnits } from "viem";
+import { ERC20_ABI } from "../../../lib/ERC20ABI";
+import {
+  raffleContractABI,
+  RAFFLE_CONTRACT_ADDRESS,
+} from "../../../lib/raffleContractABI";
 
 /**
  * HomeTab component displays the main landing content for the mini app.
@@ -20,6 +28,17 @@ export function HomeTab() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [birthTime, setBirthTime] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Wallet connection
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { sendCalls } = useSendCalls();
+
+  // USDC token address on Base Sepolia
+  const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7c";
+  const ENTRY_FEE = parseUnits("5", 6); // 5 USDC with 6 decimals
+  const RAFFLE_NUMBER = 1;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -47,6 +66,37 @@ export function HomeTab() {
 
     fetchUser();
   }, []);
+
+  const updateSupabaseDatabase = async (
+    timestamp: number,
+    userAddress: string,
+    fid: number,
+    readableTime: string
+  ) => {
+    try {
+      const response = await fetch("/api/guesses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          timestamp,
+          user_address: userAddress,
+          fid,
+          readable_time: readableTime,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update database");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error updating database:", error);
+      throw error;
+    }
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-200px)] px-2">
@@ -146,39 +196,84 @@ export function HomeTab() {
 
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => {
-                  // Handle guess submission here
-                  if (birthDate && birthTime) {
+                disabled={isSubmitting}
+                onClick={async () => {
+                  if (!birthDate || !birthTime) {
+                    console.log("Please select both date and time");
+                    return;
+                  }
+
+                  if (!isConnected) {
+                    connect({ connector: connectors[0] });
+                    return;
+                  }
+
+                  setIsSubmitting(true);
+
+                  try {
                     // Create a date string in Chile Standard Time
                     const dateTimeString = `${birthDate}T${birthTime}`;
-
-                    // Create a Date object (JavaScript assumes local timezone)
-                    // Since we're getting input in Chile time, we need to convert
                     const chileDate = new Date(dateTimeString);
 
-                    // Chile Standard Time is UTC-3
-                    // We need to add 3 hours to convert to UTC
+                    // Chile Standard Time is UTC-3, convert to UTC
                     const utcTimestamp =
                       chileDate.getTime() + 3 * 60 * 60 * 1000;
-
-                    // Convert to Unix timestamp (seconds, not milliseconds)
                     const unixTimestamp = Math.floor(utcTimestamp / 1000);
 
-                    console.log("Guess submitted:", {
+                    // Prepare batch transaction calls
+                    const calls = [
+                      // Approve USDC spending
+                      {
+                        to: USDC_ADDRESS as `0x${string}`,
+                        data: encodeFunctionData({
+                          abi: ERC20_ABI,
+                          functionName: "approve",
+                          args: [RAFFLE_CONTRACT_ADDRESS, ENTRY_FEE],
+                        }),
+                      },
+                      // Enter raffle with guess
+                      {
+                        to: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
+                        data: encodeFunctionData({
+                          abi: raffleContractABI,
+                          functionName: "enterRaffleWithGuess",
+                          args: [BigInt(unixTimestamp), BigInt(RAFFLE_NUMBER)],
+                        }),
+                      },
+                    ];
+
+                    // Send batch transaction
+                    const result = await sendCalls({ calls });
+                    console.log("Batch transaction result:", result);
+
+                    // Update Supabase database
+                    await updateSupabaseDatabase(
+                      unixTimestamp,
+                      address!,
+                      16098, // Default FID for now
+                      new Date(utcTimestamp).toISOString()
+                    );
+
+                    console.log("Guess submitted successfully:", {
                       birthDate,
                       birthTime,
                       chileDateTime: dateTimeString,
                       unixTimestamp,
                       utcTime: new Date(utcTimestamp).toISOString(),
+                      userAddress: address,
                     });
-                  } else {
-                    console.log("Please select both date and time");
+
+                    setIsModalOpen(false);
+                  } catch (error) {
+                    console.error("Error submitting guess:", error);
+                    alert("Failed to submit guess. Please try again.");
+                  } finally {
+                    setIsSubmitting(false);
                   }
-                  setIsModalOpen(false);
                 }}
-                className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                Guess and Give $5
+                {isSubmitting ? "Processing..." : "Guess and Give $5"}
               </button>
               <button
                 onClick={() => setIsModalOpen(false)}
