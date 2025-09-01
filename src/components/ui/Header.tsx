@@ -18,13 +18,21 @@ export function Header({ neynarUser }: HeaderProps) {
 
   return (
     <div className="relative">
-      <div className="mt-4 mb-4 mx-4 px-1 py-1 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-between border-[3px] border-double border-primary">
+      <div className="mt-4 mb-4 mx-4 px-1 py-1 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-between border-[3px] border-double border-primary relative">
+        {/* Logo on the left */}
         <div className="flex items-center gap-2">
           <img src="/icon.png" alt="App Logo" className="w-8 h-8" />
-          <div className="text-lg font-light" style={{ color: "#f96da7" }}>
-            {APP_NAME}
-          </div>
         </div>
+
+        {/* App name centered */}
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 text-lg font-light"
+          style={{ color: "#f96da7" }}
+        >
+          {APP_NAME}
+        </div>
+
+        {/* User profile on the right */}
         {context?.user && (
           <div
             className="cursor-pointer"
