@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useSendCalls, useSwitchChain } from "wagmi";
+import {
+  useAccount,
+  useConnect,
+  useSendCalls,
+  useSwitchChain,
+  useWriteContract,
+} from "wagmi";
 import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 import { encodeFunctionData, parseUnits } from "viem";
 import { baseSepolia } from "wagmi/chains";
@@ -36,6 +42,7 @@ export function HomeTab() {
   const { connect, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
   const { switchChain } = useSwitchChain();
+  const { writeContract } = useWriteContract();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -285,6 +292,20 @@ export function HomeTab() {
                     ];
 
                     console.log("Prepared calls:", calls);
+
+                    // First, try a single USDC approval to test
+                    console.log("Testing single USDC approval...");
+                    try {
+                      await writeContract({
+                        address: USDC_ADDRESS as `0x${string}`,
+                        abi: ERC20_ABI,
+                        functionName: "approve",
+                        args: [RAFFLE_CONTRACT_ADDRESS, ENTRY_FEE],
+                      });
+                      console.log("Single USDC approval successful");
+                    } catch (error) {
+                      console.error("Single USDC approval failed:", error);
+                    }
 
                     // Send batch transaction
                     const result = await sendCalls({ calls });
