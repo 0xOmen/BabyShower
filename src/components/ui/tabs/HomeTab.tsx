@@ -18,6 +18,7 @@ import {
   raffleContractABI,
   RAFFLE_CONTRACT_ADDRESS,
 } from "../../../lib/raffleContractABI";
+import { useNeynarUser } from "../../../hooks/useNeynarUser";
 
 /**
  * HomeTab component displays the main landing content for the mini app.
@@ -46,6 +47,9 @@ export function HomeTab() {
   const { switchChain } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
+
+  // Get Farcaster user info
+  const { user: neynarUser } = useNeynarUser();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -229,10 +233,11 @@ export function HomeTab() {
         console.log("Raffle entry confirmed:", raffleReceipt);
 
         // Update Supabase database
+        const userFid = neynarUser?.fid || 0; // Use connected user's FID or null if not available
         await updateSupabaseDatabase(
           unixTimestamp,
           address!,
-          16098, // Default FID for now
+          userFid,
           new Date(utcTimestamp).toISOString()
         );
 
