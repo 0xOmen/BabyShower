@@ -16,9 +16,8 @@ export async function GET(request: NextRequest) {
           <img src="/icon.png" alt="App Logo" tw="w-16 h-16 rounded-lg" />
         </div>
 
-        {/* Main Content */}
-        <div tw="flex flex-col items-center justify-center text-center">
-          {/* jpfraneto's Profile Picture */}
+        {/* Main Content - Commented out due to broken image generation */}
+        {/* <div tw="flex flex-col items-center justify-center text-center">
           {jpfraneto?.pfp_url && (
             <div tw="flex w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg">
               <img
@@ -29,21 +28,18 @@ export async function GET(request: NextRequest) {
             </div>
           )}
 
-          {/* Main Title */}
           <h1 tw="text-6xl font-bold text-white mb-4 px-8 leading-tight">
             Join the 50/50 Baby Shower for JP
           </h1>
 
-          {/* Subtitle */}
           <p tw="text-2xl text-white opacity-90 mb-6">
             Support new parents and win money! 🎉
           </p>
         </div>
 
-        {/* Bottom Branding */}
         <div tw="absolute bottom-8 right-8 text-white opacity-70">
           <p tw="text-lg">Powered by Neynar 🪐</p>
-        </div>
+        </div> */}
       </div>
     ),
     {
