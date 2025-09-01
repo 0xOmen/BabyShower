@@ -42,6 +42,8 @@ export function HomeTab() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userEntries, setUserEntries] = useState<any[]>([]);
   const [isLoadingEntries, setIsLoadingEntries] = useState(false);
+  const [prizePool, setPrizePool] = useState<string>("0");
+  const [isLoadingPrizePool, setIsLoadingPrizePool] = useState(false);
 
   // Wallet connection
   const { isConnected, address, chainId } = useAccount();
@@ -90,6 +92,13 @@ export function HomeTab() {
 
     fetchUser();
   }, []);
+
+  // Fetch prize pool when wallet connects
+  useEffect(() => {
+    if (isConnected && publicClient) {
+      fetchPrizePool();
+    }
+  }, [isConnected, publicClient]);
 
   const updateSupabaseDatabase = async (
     timestamp: number,
@@ -141,6 +150,29 @@ export function HomeTab() {
       alert("Failed to fetch your entries. Please try again.");
     } finally {
       setIsLoadingEntries(false);
+    }
+  };
+
+  const fetchPrizePool = async () => {
+    if (!isConnected || !publicClient) return;
+
+    setIsLoadingPrizePool(true);
+    try {
+      const result = await publicClient.readContract({
+        address: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
+        abi: raffleContractABI,
+        functionName: "getPrizePool",
+        args: [BigInt(RAFFLE_NUMBER)],
+      });
+
+      // Convert from wei to USDC (6 decimals)
+      const prizePoolInUSDC = Number(result) / Math.pow(10, 6);
+      setPrizePool(prizePoolInUSDC.toFixed(2));
+    } catch (error) {
+      console.error("Error fetching prize pool:", error);
+      setPrizePool("Error");
+    } finally {
+      setIsLoadingPrizePool(false);
     }
   };
 
@@ -391,6 +423,35 @@ export function HomeTab() {
         </div>
       </div>
 
+      {/* Current Prize Pool Display */}
+      <div className="bg-green-100 dark:bg-green-900 rounded-lg p-4 mb-4 shadow-sm">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+          🏆 Current Prize Pool
+        </h3>
+        <div className="flex items-center justify-between">
+          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+            {isLoadingPrizePool ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-500"></div>
+                Loading...
+              </div>
+            ) : (
+              `$${prizePool} USDC`
+            )}
+          </div>
+          <button
+            onClick={fetchPrizePool}
+            disabled={isLoadingPrizePool}
+            className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-medium py-2 px-3 rounded-lg transition-colors text-sm"
+          >
+            🔄 Refresh
+          </button>
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          Half goes to JP and the other half goes to the closest guess!
+        </p>
+      </div>
+
       {/* Original Content */}
       <div className="flex items-center justify-center flex-1">
         <div className="text-center w-full max-w-md mx-auto">
@@ -432,154 +493,6 @@ export function HomeTab() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                disabled={isSubmitting}
-                onClick={async () => {
-                  // COMMENTED OUT ORIGINAL TRANSACTION CODE
-                  /*
-                  if (!birthDate || !birthTime) {
-                    console.log("Please select both date and time");
-                    return;
-                  }
-
-                  if (!isConnected) {
-                    if (miniAppConnector) {
-                      connect({ connector: miniAppConnector });
-                    } else {
-                      console.error("Farcaster Mini App connector not found");
-                      alert("Wallet connection not available");
-                    }
-                    return;
-                  }
-
-                  // Check if we're on the correct chain (Base Sepolia)
-                  if (chainId !== 84532) {
-                    console.log(
-                      "Wrong chain. Expected Base Sepolia (84532), got:",
-                      chainId,
-                      ". Switching automatically..."
-                    );
-                    try {
-                      await switchChain({ chainId: 84532 });
-                      // Wait a moment for the chain switch to complete
-                      await new Promise((resolve) => setTimeout(resolve, 1000));
-                    } catch (error) {
-                      console.error("Failed to switch chain:", error);
-                      alert("Please switch to Base Sepolia testnet manually");
-                      return;
-                    }
-                  }
-
-                  setIsSubmitting(true);
-
-                  try {
-                    // Create a date string in Chile Standard Time
-                    const dateTimeString = `${birthDate}T${birthTime}`;
-                    const chileDate = new Date(dateTimeString);
-
-                    // Chile Standard Time is UTC-3, convert to UTC
-                    const utcTimestamp =
-                      chileDate.getTime() + 3 * 60 * 60 * 1000;
-                    const unixTimestamp = Math.floor(utcTimestamp / 1000);
-
-                    // Prepare batch transaction calls
-                    console.log("Chain and contract info:", {
-                      chainId,
-                      expectedChainId: 84532,
-                      isCorrectChain: chainId === 84532,
-                      USDC_ADDRESS,
-                      RAFFLE_CONTRACT_ADDRESS,
-                      isValidUSDC: /^0x[a-fA-F0-9]{40}$/.test(USDC_ADDRESS),
-                      isValidRaffle: /^0x[a-fA-F0-9]{40}$/.test(
-                        RAFFLE_CONTRACT_ADDRESS
-                      ),
-                    });
-
-                    const calls = [
-                      // Approve USDC spending
-                      {
-                        to: USDC_ADDRESS as `0x${string}`,
-                        data: encodeFunctionData({
-                          abi: ERC20_ABI,
-                          functionName: "approve",
-                          args: [RAFFLE_CONTRACT_ADDRESS, ENTRY_FEE],
-                        }),
-                      },
-                      // Enter raffle with guess
-                      {
-                        to: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
-                        data: encodeFunctionData({
-                          abi: raffleContractABI,
-                          functionName: "enterRaffleWithGuess",
-                          args: [BigInt(unixTimestamp), BigInt(RAFFLE_NUMBER)],
-                        }),
-                      },
-                    ];
-
-                    console.log("Prepared calls:", calls);
-
-                    // First, try a single USDC approval to test
-                    console.log("Testing single USDC approval...");
-                    try {
-                      await writeContract({
-                        address: USDC_ADDRESS as `0x${string}`,
-                        abi: ERC20_ABI,
-                        functionName: "approve",
-                        args: [RAFFLE_CONTRACT_ADDRESS, ENTRY_FEE],
-                      });
-                      console.log("Single USDC approval successful");
-                    } catch (error) {
-                      console.error("Single USDC approval failed:", error);
-                    }
-
-                    // Send batch transaction
-                    const result = await sendCalls({ calls });
-                    console.log("Batch transaction result:", result);
-
-                    // Update Supabase database
-                    await updateSupabaseDatabase(
-                      unixTimestamp,
-                      address!,
-                      16098, // Default FID for now
-                      new Date(utcTimestamp).toISOString()
-                    );
-
-                    console.log("Guess submitted successfully:", {
-                      birthDate,
-                      birthTime,
-                      chileDateTime: dateTimeString,
-                      unixTimestamp,
-                      utcTime: new Date(utcTimestamp).toISOString(),
-                      userAddress: address,
-                    });
-
-                    setIsModalOpen(false);
-                  } catch (error) {
-                    console.error("Error submitting guess:", error);
-                    alert("Failed to submit guess. Please try again.");
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                  */
-
-                  // TEMPORARY: Just close modal for now
-                  setIsModalOpen(false);
-                }}
-                className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                {isSubmitting
-                  ? "Processing..."
-                  : "Guess and Give $5 (Disabled)"}
-              </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>
