@@ -10,6 +10,44 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const fid = searchParams.get("fid");
+
+    if (!fid) {
+      return NextResponse.json(
+        { error: "FID parameter is required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch guesses for the specified user FID
+    const { data, error } = await supabase
+      .from("Guesses")
+      .select("*")
+      .eq("fid", fid)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch guesses" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Fetched guesses for FID:", fid, "Count:", data?.length || 0);
+    return NextResponse.json({ guesses: data || [] });
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { timestamp, user_address, fid, readable_time } =
