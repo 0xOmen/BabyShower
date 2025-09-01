@@ -10,7 +10,8 @@ import {
 } from "wagmi";
 import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 import { encodeFunctionData, parseUnits } from "viem";
-import { baseSepolia } from "wagmi/chains";
+// import { baseSepolia } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { ERC20_ABI } from "../../../lib/ERC20ABI";
 import {
   raffleContractABI,
@@ -49,8 +50,8 @@ export function HomeTab() {
     (connector) => connector.id === "farcasterMiniApp"
   );
 
-  // USDC token address on Base Sepolia
-  const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7c";
+  // USDC token address on Base Mainnet
+  const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
   const ENTRY_FEE = parseUnits("5", 6); // 5 USDC with 6 decimals
   const RAFFLE_NUMBER = 1;
 
@@ -112,6 +113,70 @@ export function HomeTab() {
     }
   };
 
+  // Test transaction function for Base mainnet
+  const handleTestTransaction = async () => {
+    if (!isConnected) {
+      if (miniAppConnector) {
+        connect({ connector: miniAppConnector });
+      } else {
+        console.error("Farcaster Mini App connector not found");
+        alert("Wallet connection not available");
+      }
+      return;
+    }
+
+    // Check if we're on Base mainnet (chainId 8453)
+    if (chainId !== 8453) {
+      console.log(
+        "Wrong chain. Expected Base Mainnet (8453), got:",
+        chainId,
+        ". Switching automatically..."
+      );
+      try {
+        await switchChain({ chainId: 8453 });
+        // Wait a moment for the chain switch to complete
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error("Failed to switch chain:", error);
+        alert("Please switch to Base mainnet manually");
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      console.log("Starting test transaction on Base mainnet...");
+      console.log("Chain and contract info:", {
+        chainId,
+        expectedChainId: 8453,
+        isCorrectChain: chainId === 8453,
+        USDC_ADDRESS,
+        RAFFLE_CONTRACT_ADDRESS,
+      });
+
+      // Simple test transaction - just approve USDC spending
+      console.log("Testing USDC approval on Base mainnet...");
+      const testAddress = "0x668f25E26522fcA6ff4f4D6cEe2f2269e7c26B56";
+      const result = await writeContract({
+        address: USDC_ADDRESS as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [testAddress, ENTRY_FEE],
+      });
+
+      console.log("Test transaction result:", result);
+      alert(
+        "Test transaction submitted successfully! Check your wallet for confirmation."
+      );
+    } catch (error) {
+      console.error("Error with test transaction:", error);
+      alert("Test transaction failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-200px)] px-2">
       {/* User Profile Section */}
@@ -154,10 +219,10 @@ export function HomeTab() {
         </p>
         <div className="flex gap-3">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleTestTransaction}
             className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
-            Guess and Give: $5
+            {isSubmitting ? "Processing..." : "Test Transaction (Base Mainnet)"}
           </button>
           <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
             My Entries
@@ -212,6 +277,8 @@ export function HomeTab() {
               <button
                 disabled={isSubmitting}
                 onClick={async () => {
+                  // COMMENTED OUT ORIGINAL TRANSACTION CODE
+                  /*
                   if (!birthDate || !birthTime) {
                     console.log("Please select both date and time");
                     return;
@@ -335,10 +402,19 @@ export function HomeTab() {
                   } finally {
                     setIsSubmitting(false);
                   }
+                  */
+
+                  // TEMPORARY: Just close modal for now
+                  setIsModalOpen(false);
+                  alert(
+                    "Original transaction code is commented out. Use the 'Test Transaction' button instead."
+                  );
                 }}
                 className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                {isSubmitting ? "Processing..." : "Guess and Give $5"}
+                {isSubmitting
+                  ? "Processing..."
+                  : "Guess and Give $5 (Disabled)"}
               </button>
               <button
                 onClick={() => setIsModalOpen(false)}
