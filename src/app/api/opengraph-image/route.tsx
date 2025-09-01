@@ -11,15 +11,36 @@ export async function GET(request: NextRequest) {
 
     return new ImageResponse(
       (
-        <div tw="flex h-full w-full flex-col justify-center items-center relative bg-gradient-to-br from-pink-500 to-blue-600">
+        <div
+          style={{
+            display: "flex",
+            height: "100%",
+            width: "100%",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            background: "linear-gradient(to bottom right, #ec4899, #2563eb)",
+          }}
+        >
           {/* App Logo */}
-          <div tw="absolute top-8 left-8">
+          <div
+            style={{
+              position: "absolute",
+              top: "32px",
+              left: "32px",
+            }}
+          >
             <img
               src={`${
                 process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
               }/icon.png`}
               alt="App Logo"
-              tw="w-16 h-16 rounded-lg"
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "8px",
+              }}
             />
           </div>
 
@@ -60,8 +81,26 @@ export async function GET(request: NextRequest) {
     // Return a simple fallback image
     return new ImageResponse(
       (
-        <div tw="flex h-full w-full flex-col justify-center items-center bg-gradient-to-br from-pink-500 to-blue-600">
-          <div tw="text-4xl font-bold text-white">Baby Shower Raffle</div>
+        <div
+          style={{
+            display: "flex",
+            height: "100%",
+            width: "100%",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "linear-gradient(to bottom right, #ec4899, #2563eb)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "36px",
+              fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            Baby Shower Raffle
+          </div>
         </div>
       ),
       {
