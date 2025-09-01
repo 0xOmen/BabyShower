@@ -114,7 +114,7 @@ export function HomeTab() {
   };
 
   // Test transaction function for Base mainnet
-  const handleTestTransaction = async () => {
+  const handleRaffleEntry = async () => {
     if (!isConnected) {
       // Try Farcaster Mini App connector first, fallback to any available connector
       const connector = miniAppConnector || connectors[0];
@@ -158,8 +158,8 @@ export function HomeTab() {
         RAFFLE_CONTRACT_ADDRESS,
       });
 
-      // Simple test transaction - just approve USDC spending
-      console.log("Testing USDC approval on Base mainnet...");
+      // Approve USDC spending
+      console.log("Approving USDC on Base mainnet...");
       const result = await writeContract({
         address: USDC_ADDRESS as `0x${string}`,
         abi: ERC20_ABI,
@@ -221,10 +221,10 @@ export function HomeTab() {
         </p>
         <div className="flex gap-3">
           <button
-            onClick={handleTestTransaction}
+            onClick={handleRaffleEntry}
             className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
-            {isSubmitting ? "Processing..." : "Test Transaction (Base Mainnet)"}
+            {isSubmitting ? "Processing..." : "Guess and Gift $5"}
           </button>
           <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
             My Entries
