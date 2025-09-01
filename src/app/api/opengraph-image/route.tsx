@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
   const user = fid ? await getNeynarUser(Number(fid)) : null;
 
-  return new ImageResponse(
+  const response = new ImageResponse(
     (
       <div
         tw="flex h-full w-full flex-col justify-center items-center relative"
@@ -38,4 +38,9 @@ export async function GET(request: NextRequest) {
       height: 800,
     }
   );
+
+  // Set cache control to 5 minutes
+  response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300");
+
+  return response;
 }
