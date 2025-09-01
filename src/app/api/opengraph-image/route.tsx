@@ -2,24 +2,55 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { getNeynarUser } from "~/lib/neynar";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const fid = searchParams.get('fid');
-
-  const user = fid ? await getNeynarUser(Number(fid)) : null;
+  // Get jpfraneto's user data (FID: 16098 based on HomeTab.tsx)
+  const jpfraneto = await getNeynarUser(16098);
 
   return new ImageResponse(
     (
-      <div tw="flex h-full w-full flex-col justify-center items-center relative bg-primary">
-        {user?.pfp_url && (
-          <div tw="flex w-96 h-96 rounded-full overflow-hidden mb-8 border-8 border-white">
-            <img src={user.pfp_url} alt="Profile" tw="w-full h-full object-cover" />
+      <div tw="flex h-full w-full flex-col justify-center items-center relative bg-gradient-to-br from-pink-500 to-blue-600">
+        {/* App Logo */}
+        <div tw="absolute top-8 left-8">
+          <img src="/icon.png" alt="App Logo" tw="w-16 h-16 rounded-lg" />
+        </div>
+
+        {/* Main Content */}
+        <div tw="flex flex-col items-center justify-center text-center">
+          {/* jpfraneto's Profile Picture */}
+          {jpfraneto?.pfp_url && (
+            <div tw="flex w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg">
+              <img
+                src={jpfraneto.pfp_url}
+                alt="jpfraneto"
+                tw="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* Main Title */}
+          <h1 tw="text-6xl font-bold text-white mb-4 px-8 leading-tight">
+            Join the 50/50 Baby Shower for JP
+          </h1>
+
+          {/* Subtitle */}
+          <p tw="text-2xl text-white opacity-90 mb-6">
+            Support new parents and win money! 🎉
+          </p>
+
+          {/* Additional Info */}
+          <div tw="flex items-center gap-4 text-white opacity-80">
+            <span tw="text-xl">🏆 Win Half the Prize Pool</span>
+            <span tw="text-xl">•</span>
+            <span tw="text-xl">💰 $5 Entry Fee</span>
           </div>
-        )}
-        <h1 tw="text-8xl text-white">{user?.display_name ? `Hello from ${user.display_name ?? user.username}!` : 'Hello!'}</h1>
-        <p tw="text-5xl mt-4 text-white opacity-80">Powered by Neynar 🪐</p>
+        </div>
+
+        {/* Bottom Branding */}
+        <div tw="absolute bottom-8 right-8 text-white opacity-70">
+          <p tw="text-lg">Powered by Neynar 🪐</p>
+        </div>
       </div>
     ),
     {
