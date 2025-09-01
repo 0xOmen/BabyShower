@@ -115,6 +115,11 @@ export function HomeTab() {
 
   // Test transaction function for Base mainnet
   const handleRaffleEntry = async () => {
+    if (!birthDate || !birthTime) {
+      alert("Please select both date and time");
+      return;
+    }
+
     if (!isConnected) {
       // Try Farcaster Mini App connector first, fallback to any available connector
       const connector = miniAppConnector || connectors[0];
@@ -149,7 +154,24 @@ export function HomeTab() {
     setIsSubmitting(true);
 
     try {
-      console.log("Starting test transaction on Base mainnet...");
+      // Convert user's selected date and time to EVM compatible Unix timestamp
+      // User is selecting time in Chile Standard Time (UTC-3)
+      const dateTimeString = `${birthDate}T${birthTime}`;
+      const chileDate = new Date(dateTimeString);
+
+      // Chile Standard Time is UTC-3, so we need to add 3 hours to convert to UTC
+      const utcTimestamp = chileDate.getTime() + 3 * 60 * 60 * 1000;
+      const unixTimestamp = Math.floor(utcTimestamp / 1000);
+
+      console.log("Timestamp conversion:", {
+        birthDate,
+        birthTime,
+        chileDateTime: dateTimeString,
+        unixTimestamp,
+        utcTime: new Date(utcTimestamp).toISOString(),
+      });
+
+      console.log("Starting transaction on Base mainnet...");
       console.log("Chain and contract info:", {
         chainId,
         expectedChainId: 8453,
@@ -167,13 +189,10 @@ export function HomeTab() {
         args: [RAFFLE_CONTRACT_ADDRESS, 100000n],
       });
 
-      console.log("Test transaction result:", result);
-      alert(
-        "Test transaction submitted successfully! Check your wallet for confirmation."
-      );
+      console.log("Transaction result:", result);
     } catch (error) {
-      console.error("Error with test transaction:", error);
-      alert("Test transaction failed. Please try again.");
+      console.error("Error with transaction:", error);
+      alert("Transaction failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -435,9 +454,6 @@ export function HomeTab() {
 
                   // TEMPORARY: Just close modal for now
                   setIsModalOpen(false);
-                  alert(
-                    "Original transaction code is commented out. Use the 'Test Transaction' button instead."
-                  );
                 }}
                 className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
