@@ -14,7 +14,13 @@ export async function GET(request: NextRequest) {
         <div tw="flex h-full w-full flex-col justify-center items-center relative bg-gradient-to-br from-pink-500 to-blue-600">
           {/* App Logo */}
           <div tw="absolute top-8 left-8">
-            <img src="/icon.png" alt="App Logo" tw="w-16 h-16 rounded-lg" />
+            <img
+              src={`${
+                process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
+              }/icon.png`}
+              alt="App Logo"
+              tw="w-16 h-16 rounded-lg"
+            />
           </div>
 
           {/* Main Content - Commented out due to broken image generation */}
