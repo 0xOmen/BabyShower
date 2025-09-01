@@ -160,12 +160,11 @@ export function HomeTab() {
 
       // Simple test transaction - just approve USDC spending
       console.log("Testing USDC approval on Base mainnet...");
-      const testAddress = "0x668f25E26522fcA6ff4f4D6cEe2f2269e7c26B56";
       const result = await writeContract({
         address: USDC_ADDRESS as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [testAddress, ENTRY_FEE],
+        args: [RAFFLE_CONTRACT_ADDRESS, 100000n],
       });
 
       console.log("Test transaction result:", result);

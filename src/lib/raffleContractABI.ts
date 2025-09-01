@@ -388,6 +388,6 @@ export const raffleContractABI = [
   },
 ] as const;
 
-// Contract address on Base Sepolia blockchain
+// Contract address on Base blockchain
 export const RAFFLE_CONTRACT_ADDRESS =
-  "0xBdc4E325629B2cF58F6c77912f81b73FE900C94d" as const;
+  "0x0C8020F0F4D4fb6fe708B0ED91cc3BAd00D419A8" as const;
