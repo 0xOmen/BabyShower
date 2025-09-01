@@ -25,6 +25,20 @@ export async function GET(request: NextRequest) {
             />
           </div>
         )}
+        {/* App Logo */}
+        <img
+          src={`${
+            process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
+          }/icon.png`}
+          alt="App Logo"
+          style={{
+            width: "80px",
+            height: "80px",
+            borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        />
+
         <h1 tw="text-8xl text-white">
           {user?.display_name
             ? `Baby Shower ${user.display_name ?? user.username}!`
