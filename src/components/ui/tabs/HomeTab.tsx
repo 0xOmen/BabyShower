@@ -611,7 +611,7 @@ export function HomeTab() {
             ) : userEntries.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  You haven't made any raffle entries yet.
+                  You have no raffle entries.
                 </p>
                 <button
                   onClick={() => {
