@@ -36,9 +36,12 @@ export function HomeTab() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEntriesModalOpen, setIsEntriesModalOpen] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [birthTime, setBirthTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userEntries, setUserEntries] = useState<any[]>([]);
+  const [isLoadingEntries, setIsLoadingEntries] = useState(false);
 
   // Wallet connection
   const { isConnected, address, chainId } = useAccount();
@@ -116,6 +119,28 @@ export function HomeTab() {
     } catch (error) {
       console.error("Error updating database:", error);
       throw error;
+    }
+  };
+
+  const fetchUserEntries = async () => {
+    if (!context?.user?.fid) {
+      alert("Please connect your Farcaster wallet to view your entries.");
+      return;
+    }
+
+    setIsLoadingEntries(true);
+    try {
+      const response = await fetch(`/api/guesses?fid=${context.user.fid}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user entries");
+      }
+      const data = await response.json();
+      setUserEntries(data.guesses || []);
+    } catch (error) {
+      console.error("Error fetching user entries:", error);
+      alert("Failed to fetch your entries. Please try again.");
+    } finally {
+      setIsLoadingEntries(false);
     }
   };
 
@@ -354,7 +379,13 @@ export function HomeTab() {
           >
             {isSubmitting ? "Processing..." : "Guess and Gift $5"}
           </button>
-          <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+          <button
+            onClick={() => {
+              setIsEntriesModalOpen(true);
+              fetchUserEntries();
+            }}
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
             My Entries
           </button>
         </div>
@@ -548,6 +579,96 @@ export function HomeTab() {
                 className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Entries Modal */}
+      {isEntriesModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mx-4 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                My Raffle Entries
+              </h3>
+              <button
+                onClick={() => setIsEntriesModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            {isLoadingEntries ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Loading your entries...
+                </p>
+              </div>
+            ) : userEntries.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  You haven't made any raffle entries yet.
+                </p>
+                <button
+                  onClick={() => {
+                    setIsEntriesModalOpen(false);
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Make Your First Entry
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 dark:text-gray-300">
+                        Entry #
+                      </th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 dark:text-gray-300">
+                        Your Guess
+                      </th>
+                      <th className="text-left py-2 px-2 font-medium text-gray-700 dark:text-gray-300">
+                        Entry Time
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userEntries.map((entry, index) => (
+                      <tr
+                        key={entry.id || index}
+                        className="border-b border-gray-100 dark:border-gray-800"
+                      >
+                        <td className="py-2 px-2 text-gray-900 dark:text-white font-medium">
+                          {index + 1}
+                        </td>
+                        <td className="py-2 px-2 text-gray-700 dark:text-gray-300">
+                          {entry.readable_time || "N/A"}
+                        </td>
+                        <td className="py-2 px-2 text-gray-500 dark:text-gray-400 text-xs">
+                          {entry.created_at
+                            ? new Date(entry.created_at).toLocaleString()
+                            : "N/A"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setIsEntriesModalOpen(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Close
               </button>
             </div>
           </div>
