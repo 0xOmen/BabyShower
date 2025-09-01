@@ -7,6 +7,7 @@ import {
   useSendCalls,
   useSwitchChain,
   useWriteContract,
+  usePublicClient,
 } from "wagmi";
 import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
 import { encodeFunctionData, parseUnits } from "viem";
@@ -43,7 +44,8 @@ export function HomeTab() {
   const { connect, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
   const { switchChain } = useSwitchChain();
-  const { writeContract } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -180,19 +182,82 @@ export function HomeTab() {
         RAFFLE_CONTRACT_ADDRESS,
       });
 
-      // Approve USDC spending
-      console.log("Approving USDC on Base mainnet...");
-      const result = await writeContract({
+      // Step 1: Approve USDC spending
+      console.log("Step 1: Approving USDC on Base mainnet...");
+      const approvalResult = await writeContractAsync({
         address: USDC_ADDRESS as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [RAFFLE_CONTRACT_ADDRESS, 100000n],
       });
 
-      console.log("Transaction result:", result);
+      console.log("USDC approval transaction submitted:", approvalResult);
+
+      // Wait for USDC approval to be confirmed
+      console.log("Waiting for USDC approval confirmation...");
+      try {
+        // Wait for the transaction to be mined
+        const approvalReceipt = await publicClient?.waitForTransactionReceipt({
+          hash: approvalResult,
+        });
+        console.log("USDC approval confirmed:", approvalReceipt);
+      } catch (error) {
+        console.error("USDC approval failed or was rejected:", error);
+        alert("USDC approval failed. Please try again.");
+        return;
+      }
+
+      // Step 2: Enter raffle with guess
+      console.log("Step 2: Entering raffle with guess...");
+      try {
+        const raffleResult = await writeContractAsync({
+          address: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
+          abi: raffleContractABI,
+          functionName: "enterRaffleWithGuess",
+          args: [BigInt(unixTimestamp), BigInt(RAFFLE_NUMBER)],
+        });
+
+        console.log("Raffle entry transaction submitted:", raffleResult);
+        alert(
+          "Raffle entry transaction submitted! Please confirm in your wallet."
+        );
+
+        // Wait for raffle entry to be confirmed
+        const raffleReceipt = await publicClient?.waitForTransactionReceipt({
+          hash: raffleResult,
+        });
+        console.log("Raffle entry confirmed:", raffleReceipt);
+
+        // Update Supabase database
+        await updateSupabaseDatabase(
+          unixTimestamp,
+          address!,
+          16098, // Default FID for now
+          new Date(utcTimestamp).toISOString()
+        );
+
+        console.log("Raffle entry completed successfully:", {
+          birthDate,
+          birthTime,
+          chileDateTime: dateTimeString,
+          unixTimestamp,
+          utcTime: new Date(utcTimestamp).toISOString(),
+          userAddress: address,
+          raffleNumber: RAFFLE_NUMBER,
+        });
+
+        alert(
+          `🎉 Congratulations! Your raffle entry has been submitted successfully!\n\nYour guess: ${birthDate} at ${birthTime} (Chile Time)\nRaffle Number: ${RAFFLE_NUMBER}\n\nGood luck!`
+        );
+      } catch (error) {
+        console.error("Raffle entry failed:", error);
+        alert("Raffle entry failed. Please try again.");
+      }
     } catch (error) {
-      console.error("Error with transaction:", error);
-      alert("Transaction failed. Please try again.");
+      console.error("Error in raffle entry process:", error);
+      alert(
+        "An error occurred during the raffle entry process. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
