@@ -18,7 +18,7 @@ import {
   raffleContractABI,
   RAFFLE_CONTRACT_ADDRESS,
 } from "../../../lib/raffleContractABI";
-import { useNeynarUser } from "../../../hooks/useNeynarUser";
+import { useMiniApp } from "@neynar/react";
 
 /**
  * HomeTab component displays the main landing content for the mini app.
@@ -48,8 +48,8 @@ export function HomeTab() {
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
 
-  // Get Farcaster user info
-  const { user: neynarUser } = useNeynarUser();
+  // Get Farcaster user info from Mini App context
+  const { context } = useMiniApp();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -233,19 +233,18 @@ export function HomeTab() {
         console.log("Raffle entry confirmed:", raffleReceipt);
 
         // Update Supabase database
-        const userFid = neynarUser?.fid || null; // Use connected user's FID or null if not available
+        const userFid = context?.user?.fid; // Get FID from Mini App context
         console.log(
           "User FID:",
           userFid,
           "Type:",
           typeof userFid,
-          "Full neynarUser:",
-          neynarUser
+          "Context user:",
+          context?.user
         );
 
-        // Ensure userFid is a valid number or null for the database
-        const databaseFid =
-          typeof userFid === "number" && userFid > 0 ? userFid : 1;
+        // Use the FID from context if available, otherwise use null
+        const databaseFid = userFid || 1;
 
         await updateSupabaseDatabase(
           unixTimestamp,
