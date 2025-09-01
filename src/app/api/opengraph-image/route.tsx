@@ -5,19 +5,20 @@ import { getNeynarUser } from "~/lib/neynar";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  // Get jpfraneto's user data (FID: 16098 based on HomeTab.tsx)
-  const jpfraneto = await getNeynarUser(16098);
+  try {
+    // Temporarily commented out to test if this was the source of the problem
+    // const jpfraneto = await getNeynarUser(16098);
 
-  return new ImageResponse(
-    (
-      <div tw="flex h-full w-full flex-col justify-center items-center relative bg-gradient-to-br from-pink-500 to-blue-600">
-        {/* App Logo */}
-        <div tw="absolute top-8 left-8">
-          <img src="/icon.png" alt="App Logo" tw="w-16 h-16 rounded-lg" />
-        </div>
+    return new ImageResponse(
+      (
+        <div tw="flex h-full w-full flex-col justify-center items-center relative bg-gradient-to-br from-pink-500 to-blue-600">
+          {/* App Logo */}
+          <div tw="absolute top-8 left-8">
+            <img src="/icon.png" alt="App Logo" tw="w-16 h-16 rounded-lg" />
+          </div>
 
-        {/* Main Content - Commented out due to broken image generation */}
-        {/* <div tw="flex flex-col items-center justify-center text-center">
+          {/* Main Content - Commented out due to broken image generation */}
+          {/* <div tw="flex flex-col items-center justify-center text-center">
           {jpfraneto?.pfp_url && (
             <div tw="flex w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg">
               <img
@@ -40,11 +41,27 @@ export async function GET(request: NextRequest) {
         <div tw="absolute bottom-8 right-8 text-white opacity-70">
           <p tw="text-lg">Powered by Neynar 🪐</p>
         </div> */}
-      </div>
-    ),
-    {
-      width: 1200,
-      height: 800,
-    }
-  );
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 800,
+      }
+    );
+  } catch (error) {
+    console.error("Error generating OpenGraph image:", error);
+
+    // Return a simple fallback image
+    return new ImageResponse(
+      (
+        <div tw="flex h-full w-full flex-col justify-center items-center bg-gradient-to-br from-pink-500 to-blue-600">
+          <div tw="text-4xl font-bold text-white">Baby Shower Raffle</div>
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 800,
+      }
+    );
+  }
 }
