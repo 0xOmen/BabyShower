@@ -38,13 +38,6 @@ export async function GET(request: NextRequest) {
           <p tw="text-2xl text-white opacity-90 mb-6">
             Support new parents and win money! 🎉
           </p>
-
-          {/* Additional Info */}
-          <div tw="flex items-center gap-4 text-white opacity-80">
-            <span tw="text-xl">🏆 Win Half the Prize Pool</span>
-            <span tw="text-xl">•</span>
-            <span tw="text-xl">💰 $5 Entry Fee</span>
-          </div>
         </div>
 
         {/* Bottom Branding */}
