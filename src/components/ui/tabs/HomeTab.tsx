@@ -116,10 +116,13 @@ export function HomeTab() {
   // Test transaction function for Base mainnet
   const handleTestTransaction = async () => {
     if (!isConnected) {
-      if (miniAppConnector) {
-        connect({ connector: miniAppConnector });
+      // Try Farcaster Mini App connector first, fallback to any available connector
+      const connector = miniAppConnector || connectors[0];
+      if (connector) {
+        console.log("Connecting with connector:", connector.id);
+        connect({ connector });
       } else {
-        console.error("Farcaster Mini App connector not found");
+        console.error("No wallet connectors available");
         alert("Wallet connection not available");
       }
       return;
