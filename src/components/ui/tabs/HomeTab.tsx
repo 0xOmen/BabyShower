@@ -613,15 +613,6 @@ export function HomeTab() {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                   You have no raffle entries.
                 </p>
-                <button
-                  onClick={() => {
-                    setIsEntriesModalOpen(false);
-                    setIsModalOpen(true);
-                  }}
-                  className="bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Make Your First Entry
-                </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -634,9 +625,6 @@ export function HomeTab() {
                       <th className="text-left py-2 px-2 font-medium text-gray-700 dark:text-gray-300">
                         Your Guess
                       </th>
-                      <th className="text-left py-2 px-2 font-medium text-gray-700 dark:text-gray-300">
-                        Entry Time
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -648,12 +636,9 @@ export function HomeTab() {
                         <td className="py-2 px-2 text-gray-900 dark:text-white font-medium">
                           {index + 1}
                         </td>
-                        <td className="py-2 px-2 text-gray-700 dark:text-gray-300">
-                          {entry.readable_time || "N/A"}
-                        </td>
                         <td className="py-2 px-2 text-gray-500 dark:text-gray-400 text-xs">
-                          {entry.created_at
-                            ? new Date(entry.created_at).toLocaleString()
+                          {entry.readable_time
+                            ? new Date(entry.readable_time).toLocaleString()
                             : "N/A"}
                         </td>
                       </tr>
