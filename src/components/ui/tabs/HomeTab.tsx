@@ -233,11 +233,24 @@ export function HomeTab() {
         console.log("Raffle entry confirmed:", raffleReceipt);
 
         // Update Supabase database
-        const userFid = neynarUser?.fid || 0; // Use connected user's FID or null if not available
+        const userFid = neynarUser?.fid || null; // Use connected user's FID or null if not available
+        console.log(
+          "User FID:",
+          userFid,
+          "Type:",
+          typeof userFid,
+          "Full neynarUser:",
+          neynarUser
+        );
+
+        // Ensure userFid is a valid number or null for the database
+        const databaseFid =
+          typeof userFid === "number" && userFid > 0 ? userFid : 1;
+
         await updateSupabaseDatabase(
           unixTimestamp,
           address!,
-          userFid,
+          databaseFid,
           new Date(utcTimestamp).toISOString()
         );
 
