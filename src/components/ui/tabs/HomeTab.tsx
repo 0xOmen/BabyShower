@@ -48,6 +48,7 @@ export function HomeTab() {
   const [showError, setShowError] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Wallet connection
   const { isConnected, address, chainId } = useAccount();
@@ -58,7 +59,7 @@ export function HomeTab() {
   const publicClient = usePublicClient();
 
   // Get Farcaster user info from Mini App context
-  const { context } = useMiniApp();
+  const { context, actions } = useMiniApp();
 
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors.find(
@@ -79,6 +80,32 @@ export function HomeTab() {
     setShowSuccess(true);
     // Auto-hide after 8 seconds
     setTimeout(() => setShowSuccess(false), 8000);
+  };
+
+  // Function to handle sharing raffle entry on Farcaster
+  const handleShareRaffleEntry = async () => {
+    if (!context?.user?.fid) {
+      showErrorAlert("Unable to share: User not connected");
+      return;
+    }
+
+    try {
+      // Create the share text
+
+      const shareText = `🎉 Just entered the 50/50 Baby Shower Raffle! 🍼\nnJoin me and win half the prize pool! 🏆`;
+
+      // Create the share URL with the user's FID
+      const shareUrl = `${window.location.origin}/share/${context.user.fid}`;
+
+      // Use the existing ShareButton functionality to compose the cast
+      await actions.composeCast({
+        text: shareText,
+        embeds: [shareUrl],
+      });
+    } catch (error) {
+      console.error("Failed to share raffle entry:", error);
+      showErrorAlert("Failed to share. Please try again.");
+    }
   };
 
   // Function to set winning timestamp (admin only)
@@ -431,9 +458,14 @@ export function HomeTab() {
           raffleNumber: RAFFLE_NUMBER,
         });
 
-        alert(
-          `🎉 Congratulations! Your raffle entry has been submitted successfully!\n\nYour guess: ${birthDate} at ${birthTime} (Chile Time)\nRaffle Number: ${RAFFLE_NUMBER}\n\nGood luck!`
+        showSuccessAlert(
+          "🎉 Congratulations! Your raffle entry has been submitted successfully!"
         );
+
+        // Show share modal after successful entry
+        setTimeout(() => {
+          setShowShareModal(true);
+        }, 1000);
       } catch (error) {
         console.error("Raffle entry failed:", error);
         showErrorAlert("Raffle entry failed. Please try again.");
@@ -517,6 +549,39 @@ export function HomeTab() {
             >
               ×
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mx-4 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              🎉 Share Your Raffle Entry!
+            </h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">
+              Would you like to share that you entered the 50/50 Baby Shower
+              Raffle on Farcaster?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Maybe Later
+              </button>
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  handleShareRaffleEntry();
+                }}
+                className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Share Now! 🚀
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -643,9 +708,17 @@ export function HomeTab() {
 
           <button
             onClick={handleSetWinningTimestamp}
-            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors mb-3"
           >
             Set Winning Timestamp
+          </button>
+
+          {/* Test Share Button */}
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            🧪 Test Share Modal
           </button>
         </div>
       )}
