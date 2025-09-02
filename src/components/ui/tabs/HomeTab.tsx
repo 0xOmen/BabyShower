@@ -81,6 +81,71 @@ export function HomeTab() {
     setTimeout(() => setShowSuccess(false), 8000);
   };
 
+  // Function to set winning timestamp (admin only)
+  const handleSetWinningTimestamp = async () => {
+    if (!birthDate || !birthTime) {
+      showErrorAlert("Please select both date and time");
+      return;
+    }
+
+    if (!isConnected) {
+      showErrorAlert("Please connect your wallet first");
+      return;
+    }
+
+    // Check if we're on Base mainnet (chainId 8453)
+    if (chainId !== 8453) {
+      try {
+        await switchChain({ chainId: 8453 });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error("Failed to switch chain:", error);
+        showErrorAlert("Please switch to Base mainnet manually");
+        return;
+      }
+    }
+
+    try {
+      // Convert user's selected date and time to EVM compatible Unix timestamp
+      // User is selecting time in Chile Standard Time (UTC-3)
+      const dateTimeString = `${birthDate}T${birthTime}`;
+      const chileDate = new Date(dateTimeString);
+
+      // Chile Standard Time is UTC-3, so we need to add 3 hours to convert to UTC
+      const utcTimestamp = chileDate.getTime() + 3 * 60 * 60 * 1000;
+      const unixTimestamp = Math.floor(utcTimestamp / 1000);
+
+      console.log("Setting winning timestamp:", {
+        birthDate,
+        birthTime,
+        chileDateTime: dateTimeString,
+        unixTimestamp,
+        utcTime: new Date(utcTimestamp).toISOString(),
+      });
+
+      // Call the contract function to set winning timestamp
+      const result = await writeContractAsync({
+        address: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
+        abi: raffleContractABI,
+        functionName: "setWinningTimestamp",
+        args: [BigInt(RAFFLE_NUMBER), BigInt(unixTimestamp)],
+      });
+
+      console.log("Set winning timestamp transaction submitted:", result);
+      showSuccessAlert("Winning timestamp transaction submitted!");
+
+      // Wait for transaction to be confirmed
+      const receipt = await publicClient?.waitForTransactionReceipt({
+        hash: result,
+      });
+      console.log("Winning timestamp confirmed:", receipt);
+      showSuccessAlert("Winning timestamp has been set successfully!");
+    } catch (error) {
+      console.error("Error setting winning timestamp:", error);
+      showErrorAlert("Failed to set winning timestamp. Please try again.");
+    }
+  };
+
   // USDC token address on Base Mainnet
   const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
   const ENTRY_FEE = parseUnits("5", 6); // 5 USDC with 6 decimals
@@ -445,6 +510,51 @@ export function HomeTab() {
               ×
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Set Winning Timestamp Section (Admin Only) */}
+      {(context?.user?.fid === 16098 || context?.user?.fid === 212074) && (
+        <div className="bg-purple-100 dark:bg-purple-900 rounded-lg p-4 mb-4 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            🏆 Set Winning Timestamp (Admin Only)
+          </h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+            Set the actual birth time to determine the winner of the raffle.
+          </p>
+
+          {/* Date and Time Selection */}
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Date
+              </label>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Time (Chile Std Time)
+              </label>
+              <input
+                type="time"
+                value={birthTime}
+                onChange={(e) => setBirthTime(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleSetWinningTimestamp}
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Set Winning Timestamp
+          </button>
         </div>
       )}
 
