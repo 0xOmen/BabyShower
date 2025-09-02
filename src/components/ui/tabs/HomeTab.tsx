@@ -149,7 +149,7 @@ export function HomeTab() {
   // USDC token address on Base Mainnet
   const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
   const ENTRY_FEE = parseUnits("5", 6); // 5 USDC with 6 decimals
-  const RAFFLE_NUMBER = 1;
+  const RAFFLE_NUMBER = 2;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -354,7 +354,7 @@ export function HomeTab() {
         address: USDC_ADDRESS as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [RAFFLE_CONTRACT_ADDRESS, 100000n],
+        args: [RAFFLE_CONTRACT_ADDRESS, ENTRY_FEE],
       });
 
       console.log("USDC approval transaction submitted:", approvalResult);
@@ -433,7 +433,7 @@ export function HomeTab() {
     } catch (error) {
       console.error("Error in raffle entry process:", error);
       showErrorAlert(
-        "An error occurred during the raffle entry process. If you are on desktop, click the three dots above, refresh the miniapp, and try again."
+        "An error occurred during the raffle entry process. If you are on DESKTOP: click the three dots above, refresh the miniapp, and try again."
       );
     } finally {
       setIsSubmitting(false);
