@@ -46,8 +46,6 @@ export async function GET(request: NextRequest) {
           }/advert.png`}
           alt="Advert"
           style={{
-            width: "960px",
-            height: "auto",
             marginBottom: "16px",
           }}
         />
