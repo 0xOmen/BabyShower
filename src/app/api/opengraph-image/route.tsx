@@ -32,9 +32,22 @@ export async function GET(request: NextRequest) {
           }/icon.png`}
           alt="App Logo"
           style={{
-            width: "80px",
-            height: "80px",
+            width: "160px",
+            height: "160px",
             borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        />
+
+        {/* Advert Image */}
+        <img
+          src={`${
+            process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
+          }/advert.png`}
+          alt="Advert"
+          style={{
+            width: "960px",
+            height: "auto",
             marginBottom: "16px",
           }}
         />
