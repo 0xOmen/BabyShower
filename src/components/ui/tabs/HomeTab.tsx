@@ -484,7 +484,7 @@ export function HomeTab() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Time (Chile Standard Time)
+                  Time - Chile Std Time
                 </label>
                 <input
                   type="time"
