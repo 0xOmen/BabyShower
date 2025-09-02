@@ -44,6 +44,10 @@ export function HomeTab() {
   const [isLoadingEntries, setIsLoadingEntries] = useState(false);
   const [prizePool, setPrizePool] = useState<string>("0");
   const [isLoadingPrizePool, setIsLoadingPrizePool] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showError, setShowError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Wallet connection
   const { isConnected, address, chainId } = useAccount();
@@ -60,6 +64,22 @@ export function HomeTab() {
   const miniAppConnector = connectors.find(
     (connector) => connector.id === "farcasterMiniApp"
   );
+
+  // Helper function to show errors
+  const showErrorAlert = (message: string) => {
+    setErrorMessage(message);
+    setShowError(true);
+    // Auto-hide after 5 seconds
+    setTimeout(() => setShowError(false), 5000);
+  };
+
+  // Helper function to show success messages
+  const showSuccessAlert = (message: string) => {
+    setSuccessMessage(message);
+    setShowSuccess(true);
+    // Auto-hide after 8 seconds
+    setTimeout(() => setShowSuccess(false), 8000);
+  };
 
   // USDC token address on Base Mainnet
   const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
@@ -179,7 +199,7 @@ export function HomeTab() {
   // Test transaction function for Base mainnet
   const handleRaffleEntry = async () => {
     if (!birthDate || !birthTime) {
-      alert("Please select both date and time");
+      showErrorAlert("Please select both date and time");
       return;
     }
 
@@ -194,12 +214,12 @@ export function HomeTab() {
     );
 
     if (selectedDateUTC < minDate) {
-      alert("Date cannot be before September 2, 2025");
+      showErrorAlert("Date cannot be before September 2, 2025");
       return;
     }
 
     if (selectedDateUTC > maxDate) {
-      alert("Date cannot be after December 31, 2025");
+      showErrorAlert("Date cannot be after December 31, 2025");
       return;
     }
 
@@ -211,7 +231,7 @@ export function HomeTab() {
         connect({ connector });
       } else {
         console.error("No wallet connectors available");
-        alert("Wallet connection not available");
+        showErrorAlert("Wallet connection not available");
       }
       return;
     }
@@ -229,7 +249,7 @@ export function HomeTab() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
         console.error("Failed to switch chain:", error);
-        alert("Please switch to Base mainnet manually");
+        showErrorAlert("Please switch to Base mainnet manually");
         return;
       }
     }
@@ -284,7 +304,7 @@ export function HomeTab() {
         console.log("USDC approval confirmed:", approvalReceipt);
       } catch (error) {
         console.error("USDC approval failed or was rejected:", error);
-        alert("USDC approval failed. Please try again.");
+        showErrorAlert("USDC approval failed. Please try again.");
         return;
       }
 
@@ -299,9 +319,7 @@ export function HomeTab() {
         });
 
         console.log("Raffle entry transaction submitted:", raffleResult);
-        alert(
-          "Raffle entry transaction submitted! Please confirm in your wallet."
-        );
+        showSuccessAlert("Raffle entry transaction submitted!");
 
         // Wait for raffle entry to be confirmed
         const raffleReceipt = await publicClient?.waitForTransactionReceipt({
@@ -345,11 +363,11 @@ export function HomeTab() {
         );
       } catch (error) {
         console.error("Raffle entry failed:", error);
-        alert("Raffle entry failed. Please try again.");
+        showErrorAlert("Raffle entry failed. Please try again.");
       }
     } catch (error) {
       console.error("Error in raffle entry process:", error);
-      alert(
+      showErrorAlert(
         "An error occurred during the raffle entry process. Please try again."
       );
     } finally {
@@ -387,6 +405,48 @@ export function HomeTab() {
           </h2>
         </div>
       </div>
+
+      {/* Error Display */}
+      {showError && (
+        <div className="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-red-600 dark:text-red-400 text-lg">⚠️</span>
+              <span className="text-red-800 dark:text-red-200 font-medium">
+                {errorMessage}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowError(false)}
+              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success Display */}
+      {showSuccess && (
+        <div className="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg p-3 mb-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-green-600 dark:text-green-400 text-lg">
+                🎉
+              </span>
+              <span className="text-green-800 dark:text-green-200 font-medium">
+                {successMessage}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 50/50 Baby Shower Raffle Section */}
       <div className="bg-blue-100 dark:bg-blue-900 rounded-lg p-4 mb-4 shadow-sm">
