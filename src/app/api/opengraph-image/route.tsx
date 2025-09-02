@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         <h1 tw="text-8xl text-white">
           {user?.display_name
             ? `Baby Shower ${user.display_name ?? user.username}!`
-            : "Baby Shower!"}
+            : "Baby Shower 50/50 Raffle!"}
         </h1>
         <p tw="text-5xl mt-4 text-white opacity-80">Powered by Neynar 🪐</p>
       </div>
