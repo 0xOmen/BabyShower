@@ -95,7 +95,8 @@ export function HomeTab() {
       const shareText = `🎉 Just entered the 50/50 Baby Shower Raffle! 🍼\n\nJoin me and win half the prize pool! 🏆`;
 
       // Create the share URL with the user's FID
-      const shareUrl = `${window.location.origin}/api/opengraph-image?fid=${context.user.fid}`;
+      const shareUrl =
+        "https://farcaster.xyz/miniapps/pZkSJJCihh7I/baby-shower";
 
       // Use the existing ShareButton functionality to compose the cast
       await actions.composeCast({
