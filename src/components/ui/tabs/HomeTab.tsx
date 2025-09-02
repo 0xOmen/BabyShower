@@ -292,7 +292,7 @@ export function HomeTab() {
       // Try Farcaster Mini App connector first, fallback to any available connector
       const connector = miniAppConnector || connectors[0];
       if (connector) {
-        console.log("Connecting with connector:", connector.id);
+        console.log("!!!Connecting with connector:", connector.id);
         connect({ connector });
       } else {
         console.error("No wallet connectors available");
