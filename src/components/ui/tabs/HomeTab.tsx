@@ -51,7 +51,7 @@ export function HomeTab() {
 
   // Wallet connection
   const { isConnected, address, chainId } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { sendCalls } = useSendCalls();
   const { switchChain } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
@@ -293,12 +293,20 @@ export function HomeTab() {
       const connector = miniAppConnector || connectors[0];
       if (connector) {
         console.log("!!!Connecting with connector:", connector.id);
-        connect({ connector });
+        try {
+          await connectAsync({ connector });
+          // Wait a moment for the connection to fully establish
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error("Failed to connect wallet:", error);
+          showErrorAlert("Failed to connect wallet. Please try again.");
+          return;
+        }
       } else {
         console.error("No wallet connectors available");
         showErrorAlert("Wallet connection not available");
+        return;
       }
-      return;
     }
 
     // Check if we're on Base mainnet (chainId 8453)
