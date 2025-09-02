@@ -368,7 +368,7 @@ export function HomeTab() {
     } catch (error) {
       console.error("Error in raffle entry process:", error);
       showErrorAlert(
-        "An error occurred during the raffle entry process. Please try again."
+        "An error occurred during the raffle entry process. If you are on desktop, click the three dots above, refresh the miniapp, and try again."
       );
     } finally {
       setIsSubmitting(false);
