@@ -513,51 +513,6 @@ export function HomeTab() {
         </div>
       )}
 
-      {/* Set Winning Timestamp Section (Admin Only) */}
-      {(context?.user?.fid === 16098 || context?.user?.fid === 212074) && (
-        <div className="bg-purple-100 dark:bg-purple-900 rounded-lg p-4 mb-4 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-            🏆 Set Winning Timestamp (Admin Only)
-          </h3>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-            Set the actual birth time to determine the winner of the raffle.
-          </p>
-
-          {/* Date and Time Selection */}
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Date
-              </label>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Time (Chile Time)
-              </label>
-              <input
-                type="time"
-                value={birthTime}
-                onChange={(e) => setBirthTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={handleSetWinningTimestamp}
-            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Set Winning Timestamp
-          </button>
-        </div>
-      )}
-
       {/* 50/50 Baby Shower Raffle Section */}
       <div className="bg-blue-100 dark:bg-blue-900 rounded-lg p-4 mb-4 shadow-sm">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
@@ -641,6 +596,51 @@ export function HomeTab() {
           Half goes to JP and the other half goes to the closest guess!
         </p>
       </div>
+
+      {/* Set Winning Timestamp Section (Admin Only) */}
+      {(context?.user?.fid === 16098 || context?.user?.fid === 212074) && (
+        <div className="bg-purple-100 dark:bg-purple-900 rounded-lg p-4 mb-4 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            🏆 Set Winning Timestamp (Admin Only)
+          </h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+            Set the actual birth time to determine the winner of the raffle.
+          </p>
+
+          {/* Date and Time Selection */}
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Date
+              </label>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Time (Chile Time)
+              </label>
+              <input
+                type="time"
+                value={birthTime}
+                onChange={(e) => setBirthTime(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleSetWinningTimestamp}
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Set Winning Timestamp
+          </button>
+        </div>
+      )}
 
       {/* Original Content */}
       <div className="flex items-center justify-center flex-1">
