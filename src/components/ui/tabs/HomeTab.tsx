@@ -183,6 +183,26 @@ export function HomeTab() {
       return;
     }
 
+    // Validate date range: must be between Sept 2, 2025 and Dec 31, 2025 UTC
+    const selectedDate = new Date(`${birthDate}T${birthTime}`);
+    const minDate = new Date("2025-09-02T00:00:00Z"); // Sept 2, 2025 UTC
+    const maxDate = new Date("2025-12-31T23:59:59Z"); // Dec 31, 2025 UTC
+
+    // Convert selected date to UTC for comparison (Chile time + 3 hours)
+    const selectedDateUTC = new Date(
+      selectedDate.getTime() + 3 * 60 * 60 * 1000
+    );
+
+    if (selectedDateUTC < minDate) {
+      alert("Date cannot be before September 2, 2025");
+      return;
+    }
+
+    if (selectedDateUTC > maxDate) {
+      alert("Date cannot be after December 31, 2025");
+      return;
+    }
+
     if (!isConnected) {
       // Try Farcaster Mini App connector first, fallback to any available connector
       const connector = miniAppConnector || connectors[0];
