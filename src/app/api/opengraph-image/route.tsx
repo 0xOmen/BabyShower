@@ -5,26 +5,23 @@ import { getNeynarUser } from "~/lib/neynar";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const fid = searchParams.get("fid");
-
-  const user = fid ? await getNeynarUser(Number(fid)) : null;
+  // Get the profile picture for FID 16098 (jpfraneto)
+  const jpfraneto = await getNeynarUser(16098);
 
   const response = new ImageResponse(
     (
       <div
-        tw="flex h-full w-full flex-col justify-center items-center relative"
-        style={{ backgroundColor: "#f96da7" }}
+        style={{
+          display: "flex",
+          height: "100%",
+          width: "100%",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f96da7",
+          position: "relative",
+        }}
       >
-        {user?.pfp_url && (
-          <div tw="flex w-96 h-96 rounded-full overflow-hidden mb-8 border-8 border-white">
-            <img
-              src={user.pfp_url}
-              alt="Profile"
-              tw="w-full h-full object-cover"
-            />
-          </div>
-        )}
         {/* App Logo */}
         <img
           src={`${
@@ -39,23 +36,40 @@ export async function GET(request: NextRequest) {
           }}
         />
 
-        {/* Advert Image */}
-        <img
-          src={`${
-            process.env.NEXT_PUBLIC_URL || "http://localhost:3000"
-          }/advert.png`}
-          alt="Advert"
+        {/* Profile Picture and Text Container */}
+        <div
           style={{
-            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "32px",
           }}
-        />
+        >
+          {/* Profile Picture */}
+          {jpfraneto?.pfp_url && (
+            <img
+              src={jpfraneto.pfp_url}
+              alt="jpfraneto Profile"
+              style={{
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                border: "6px solid white",
+              }}
+            />
+          )}
 
-        <h1 tw="text-8xl text-white">
-          {user?.display_name
-            ? `Baby Shower ${user.display_name ?? user.username}!`
-            : "Baby Shower 50/50 Raffle!"}
-        </h1>
-        <p tw="text-5xl mt-4 text-white opacity-80">Powered by Neynar 🪐</p>
+          {/* Text */}
+          <h1
+            style={{
+              fontSize: "64px",
+              color: "white",
+              fontWeight: "bold",
+              margin: 0,
+            }}
+          >
+            Join jpfraneto's Baby Shower!
+          </h1>
+        </div>
       </div>
     ),
     {
