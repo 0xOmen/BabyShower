@@ -635,7 +635,7 @@ export function HomeTab() {
             onClick={handleRaffleEntry}
             className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
-            {isSubmitting ? "Processing..." : "Guess and Gift $5"}
+            {isSubmitting ? "Processing..." : "Enter Raffle! 🎲"}
           </button>
         </div>
 
