@@ -601,8 +601,7 @@ export function HomeTab() {
           50/50 Baby Shower Raffle
         </h3>
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-          Be the closest to guess the time of baby&apos;s birth and WIN half the
-          prize pool!
+          Guess the time of Ema&apos;s birth and WIN half the prize pool!
         </p>
 
         {/* Quick Date and Time Selection */}
