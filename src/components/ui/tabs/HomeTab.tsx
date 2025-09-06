@@ -513,7 +513,9 @@ export function HomeTab() {
             Celebrate {user?.username || "jpfraneto"}&apos;s family!
           </h1>
           <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-            Win Money!
+            {prizePool && prizePool !== "Error" && prizePool !== "0"
+              ? `Win $${(parseFloat(prizePool) / 2).toFixed(2)}!`
+              : "Win Money!"}
           </h2>
         </div>
       </div>
