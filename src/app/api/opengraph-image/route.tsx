@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
               margin: 0,
             }}
           >
-            Join jpfraneto's Baby Shower!
+            Join jpfranetos&apos;s Baby Shower!
           </h1>
         </div>
       </div>
