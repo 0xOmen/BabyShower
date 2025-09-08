@@ -15,19 +15,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const fid = searchParams.get("fid");
 
-    if (!fid) {
-      return NextResponse.json(
-        { error: "FID parameter is required" },
-        { status: 400 }
-      );
-    }
+    let query = supabase.from("Guesses").select("*");
 
-    // Fetch guesses for the specified user FID
-    const { data, error } = await supabase
-      .from("Guesses")
-      .select("*")
-      .eq("fid", fid)
-      .order("created_at", { ascending: false });
+    if (fid) {
+      // Fetch guesses for the specified user FID
+      query = query.eq("fid", fid);
+    }
+    // If no fid provided, fetch all guesses
+
+    const { data, error } = await query.order("created_at", {
+      ascending: false,
+    });
 
     if (error) {
       console.error("Supabase error:", error);
@@ -37,7 +35,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("Fetched guesses for FID:", fid, "Count:", data?.length || 0);
+    console.log(
+      "Fetched guesses",
+      fid ? `for FID: ${fid}` : "all entries",
+      "Count:",
+      data?.length || 0
+    );
     return NextResponse.json({ guesses: data || [] });
   } catch (error) {
     console.error("API error:", error);
