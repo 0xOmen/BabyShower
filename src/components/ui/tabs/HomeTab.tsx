@@ -205,12 +205,10 @@ export function HomeTab() {
     fetchUser();
   }, []);
 
-  // Fetch prize pool when wallet connects
+  // Fetch prize pool when component loads
   useEffect(() => {
-    if (isConnected && publicClient) {
-      fetchPrizePool();
-    }
-  }, [isConnected, publicClient]);
+    fetchPrizePool();
+  }, []);
 
   // Fetch user entries when component loads and user is connected
   useEffect(() => {
@@ -273,20 +271,20 @@ export function HomeTab() {
   };
 
   const fetchPrizePool = async () => {
-    if (!isConnected || !publicClient) return;
-
     setIsLoadingPrizePool(true);
     try {
-      const result = await publicClient.readContract({
-        address: RAFFLE_CONTRACT_ADDRESS as `0x${string}`,
-        abi: raffleContractABI,
-        functionName: "getPrizePool",
-        args: [BigInt(RAFFLE_NUMBER)],
-      });
+      // Fetch all entries from the database
+      const response = await fetch("/api/guesses");
+      if (!response.ok) {
+        throw new Error("Failed to fetch entries");
+      }
+      const data = await response.json();
 
-      // Convert from wei to USDC (6 decimals)
-      const prizePoolInUSDC = Number(result) / Math.pow(10, 6);
-      setPrizePool(prizePoolInUSDC.toFixed(2));
+      // Calculate prize pool: number of entries × $5
+      const totalEntries = data.guesses ? data.guesses.length : 0;
+      const prizePoolAmount = totalEntries * 5;
+
+      setPrizePool(prizePoolAmount.toFixed(2));
     } catch (error) {
       console.error("Error fetching prize pool:", error);
       setPrizePool("Error");
